@@ -161,8 +161,8 @@ def get_carrier_status():
     """Gets the carrier_status table from google sheets."""
     
     # Get Data
-    values = spreadcheeks.get(distribution_spreadsheets['Carrier Push'], 'Carrier Push')['values']
-    result = spreadcheeks.df(values, index='ORDER_NUMBER')
+    values = spreadsheets.get(distribution_spreadsheets['Carrier Push'], 'Carrier Push')['values']
+    result = spreadsheets.df(values, index='ORDER_NUMBER')
     result.index = result.index.astype(int)
     
     # Remove Duplicate Indicies
@@ -191,7 +191,7 @@ def process_1(report_location='Backlog_Report.xlsx'):
                         'range': 'B3:B47'
                        }
     
-    yesterday = spreadcheeks.service().spreadsheets().values().get(**yesterday_kwargs).execute()['values']
+    yesterday = spreadsheets.service().spreadsheets().values().get(**yesterday_kwargs).execute()['values']
       
     yesterday_request_kwargs = {
                                 'spreadsheetId': distribution_spreadsheets['Backlog Breakdown'],
@@ -200,7 +200,7 @@ def process_1(report_location='Backlog_Report.xlsx'):
                                 'body': {'values': yesterday}                                
                                }
     
-    yesterday_request = spreadcheeks.service().spreadsheets().values().update(**yesterday_request_kwargs).execute()
+    yesterday_request = spreadsheets.service().spreadsheets().values().update(**yesterday_request_kwargs).execute()
     
     return yesterday_request
 
@@ -346,22 +346,22 @@ def program_2():
               'body': body
              }
 
-    spreadcheeks.service().spreadsheets().values().batchUpdate(**kwargs).execute()
+    spreadsheets.service().spreadsheets().values().batchUpdate(**kwargs).execute()
     
     select_data = sift(p4_data, ok_consumer, backlog)
     table1 = pd.pivot_table(select_data, values='DOLLARS', index='DISTRIBUTION_CHANNEL_2', aggfunc=sum)
-    spreadcheeks.update(
+    spreadsheets.update(
         distribution_spreadsheets['Backlog Breakdown'],
         'OK Consumer Backlog!A3',
-        spreadcheeks.values(table1, index=True)
+        spreadsheets.values(table1, index=True)
     )
     
     select_data = sift(p4_data, ok_consumer, backlog)
     table1 = pd.pivot_table(select_data, values='DOLLARS', index='DISTRIBUTION_STATUS', aggfunc=sum)
-    spreadcheeks.update(
+    spreadsheets.update(
         distribution_spreadsheets['Backlog Breakdown'],
         'OK Consumer Backlog!A19',
-        spreadcheeks.values(table1, index=True)
+        spreadsheets.values(table1, index=True)
     )
 
 # Not in use.
@@ -406,7 +406,7 @@ def program_2():
 #                      'body': body
 #                     }
 #
-#    request = spreadcheeks.service().spreadsheets().values().batchUpdate(**request_kwargs).execute()
+#    request = spreadsheets.service().spreadsheets().values().batchUpdate(**request_kwargs).execute()
     
 def main():
     program_1()
